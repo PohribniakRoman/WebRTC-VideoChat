@@ -32,7 +32,6 @@ const joinRoom = (socket,id) => {
     }
     const clients = Array.from(io.sockets.adapter.rooms.get(id) || []);
     
-    console.log(clients);
     clients.forEach(clientID=>{
         io.to(clientID).emit(ACTIONS.ADD_PEER,{
             peerID:socket.id,
@@ -53,17 +52,37 @@ const leaveRoom = (socket) => {
     const {rooms:joinedRooms} = socket;
     Array.from(joinedRooms).filter(roomID=> validate(roomID) && version(roomID)===4)
     .forEach(roomID=>{
+        const clients = Array.from(io.sockets.adapter.rooms.get(roomID) || []);
+
+        clients.forEach(clientID=>{
+            io.to(clientID).emit(ACTIONS.REMOVE_PEER,{
+                peerID:socket.id,
+            })
+            
+            socket.emit(ACTIONS.REMOVE_PEER,{
+                peerID:clientID,
+            })
+        })
+
         socket.leave(roomID);
     })
+
+    shareRooms()
 }
 
 io.on("connection",(socket)=>{
     shareRooms();
 
-    socket.on(ACTIONS.JOIN_ROOM,({id})=>{joinRoom(socket,id)})
-    socket.on(ACTIONS.LEAVE_ROOM,()=>leaveRoom(socket))
-    socket.on(ACTIONS.RELAY_ICE,({roomID,iceCandidate})=>{
-        io.to(roomID).emit(ACTIONS.GET_ICE,{
+    socket.on(ACTIONS.JOIN,({id})=>{joinRoom(socket,id)})
+    socket.on(ACTIONS.LEAVE,()=>leaveRoom(socket))
+    socket.on(ACTIONS.RElAY_SDP,({peerID,sessionDescription})=>{
+        io.to(peerID).emit(ACTIONS.SESSION_DESCRIPTION,{
+            peerID:socket.id,
+            sessionDescription
+        })
+    })   
+    socket.on(ACTIONS.RELAY_ICE,({peerID,iceCandidate})=>{
+        io.to(peerID).emit(ACTIONS.GET_ICE,{
             peerID:socket.id,
             iceCandidate
         })
