@@ -81,14 +81,14 @@ export const useWebRTC = (roomID:string):Record<string,any> => {
         }
 
         async function addICE({peerID,iceCandidate}:Record<string,any>){
-            if(peerConnections.current[peerID]){
-                await peerConnections.current[peerID]?.addIceCandidate(new RTCIceCandidate(iceCandidate));
+                if(peerConnections.current[peerID]){
+                    await peerConnections.current[peerID]?.addIceCandidate(new RTCIceCandidate(iceCandidate));
+                }
             }
-        }
 
         socket.on(ACTIONS.ADD_PEER,addPeer)
         socket.on(ACTIONS.SESSION_DESCRIPTION,setRemoteMedia)
-        // socket.on(ACTIONS.GET_ICE,addICE)
+        socket.on(ACTIONS.GET_ICE,addICE)
 
 
         async function startCapture() {
@@ -121,7 +121,12 @@ export const useWebRTC = (roomID:string):Record<string,any> => {
             }
             delete peerConnections.current[peerID];
             delete peerMediaElements.current[peerID];
-            setClients((list:string[])=>list.filter((c:string)=>c !== peerID))
+            console.log("LEAVE");
+            
+            setClients((list:string[])=>{
+               return list.filter((c:string)=>c !== peerID)
+            })
+            
         })
     },[])
 

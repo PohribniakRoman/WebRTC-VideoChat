@@ -43,17 +43,15 @@ const joinRoom = (socket,id) => {
             createOffer:true,
         })
     })
-    
     socket.join(id);
     shareRooms();
 }
 
 const leaveRoom = (socket) => {
-    const {rooms:joinedRooms} = socket;
-    Array.from(joinedRooms).filter(roomID=> validate(roomID) && version(roomID)===4)
+    console.log(socket.rooms?socket.rooms:[]);
+    Array.from(socket.rooms?socket.rooms:[]).filter(roomID=> validate(roomID) && version(roomID)===4)
     .forEach(roomID=>{
         const clients = Array.from(io.sockets.adapter.rooms.get(roomID) || []);
-
         clients.forEach(clientID=>{
             io.to(clientID).emit(ACTIONS.REMOVE_PEER,{
                 peerID:socket.id,
@@ -74,8 +72,8 @@ io.on("connection",(socket)=>{
     shareRooms();
 
     socket.on(ACTIONS.JOIN,({id})=>{joinRoom(socket,id)})
-    socket.on(ACTIONS.LEAVE,()=>leaveRoom(socket))
-    socket.on(ACTIONS.RElAY_SDP,({peerID,sessionDescription})=>{
+    socket.on(ACTIONS.LEAVE,()=>{leaveRoom(socket)})
+    socket.on(ACTIONS.RELAY_SDP,({peerID,sessionDescription})=>{
         io.to(peerID).emit(ACTIONS.SESSION_DESCRIPTION,{
             peerID:socket.id,
             sessionDescription
@@ -87,10 +85,8 @@ io.on("connection",(socket)=>{
             iceCandidate
         })
     })
+    socket.on("disconnect",(socket)=>leaveRoom(socket))
 })
-
-io.on("disconnect",(socket)=>leaveRoom(socket))
-
 
 server.listen(PORT,()=>{
     console.log(`Server has been started on port:${PORT}`);
