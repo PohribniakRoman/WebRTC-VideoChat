@@ -48,20 +48,17 @@ const joinRoom = (socket,id) => {
 }
 
 const leaveRoom = (socket) => {
-    console.log(socket.rooms?socket.rooms:[]);
-    Array.from(socket.rooms?socket.rooms:[]).filter(roomID=> validate(roomID) && version(roomID)===4)
+    Array.from(socket.rooms?socket.adapter.rooms:[]).filter(roomID => validate(roomID[0]) && version(roomID[0])===4)
     .forEach(roomID=>{
-        const clients = Array.from(io.sockets.adapter.rooms.get(roomID) || []);
-        clients.forEach(clientID=>{
+        const clients = Array.from(roomID[1]);
+        clients.forEach(clientID=>{ 
             io.to(clientID).emit(ACTIONS.REMOVE_PEER,{
                 peerID:socket.id,
             })
-            
             socket.emit(ACTIONS.REMOVE_PEER,{
                 peerID:clientID,
             })
         })
-
         socket.leave(roomID);
     })
 

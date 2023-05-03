@@ -116,12 +116,12 @@ export const useWebRTC = (roomID:string):Record<string,any> => {
 
     useEffect(()=>{
         socket.on(ACTIONS.REMOVE_PEER,({peerID}:Record<string,string>)=>{
+            
             if(peerConnections.current[peerID]){
                 peerConnections.current[peerID].close();
             }
             delete peerConnections.current[peerID];
             delete peerMediaElements.current[peerID];
-            console.log("LEAVE");
             
             setClients((list:string[])=>{
                return list.filter((c:string)=>c !== peerID)
