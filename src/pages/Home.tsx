@@ -16,11 +16,11 @@ export const Home:React.FC = ()=>{
 
     return<>
     {roomList.map(roomId=>{
-        return <div key={roomId}>
+        return <div key={roomId} >
             <h1>{roomId}</h1>
             <button onClick={()=>{navigate(`room/${roomId}`)}}>Join</button>
         </div>
     })}
-    <button onClick={()=>{navigate(`room/${v4()}`)}}>Create Room</button>
+     <button onClick={()=>{navigate(`room/${v4()}`)}}>Create Room</button>
     </>
 }
