@@ -8,8 +8,10 @@ export const Room:React.FC = ()=>{
     useEffect(()=>{
         socket.emit("JOIN_ROOM",{roomId:params.id});
         return ()=>{
-            socket.emit("LEAVE_ROOM",{roomId:params.id})
+            socket.emit("LEAVE_ROOM")
         }
+    
+        const chennel = new RTCPeerConnection()
     },[])
 
     return <div>

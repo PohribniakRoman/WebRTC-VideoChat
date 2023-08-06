@@ -9,15 +9,7 @@ const server = createServer(app);
 const io = new Server(server);
 
 
-const joinRoom = (socket,id)=>{
-    socket.join(id);
-    shareRooms();
-}
 
-const leaveRoom = (socket,id)=>{
-    socket.leave(id);
-    shareRooms();
-}
 
 
 
@@ -30,9 +22,26 @@ const shareRooms = () => {
 
 io.on("connection",(socket)=>{
     shareRooms();
+    
+    const joinRoom = (id)=>{
+        socket.join(id);
+        shareRooms();
+    }
+    
+    const leaveRoom = ()=>{
+        const {rooms} = socket;
+        Array.from(rooms).forEach(roomId=>{
+            const clients  = Array.from(io.sockets.adapter.rooms.get(roomId) || []);
+            socket.leave(roomId);
+        })
+        shareRooms();
+    }
+
+
+
 
     socket.on("JOIN_ROOM",({roomId})=>joinRoom(socket,roomId));
-    socket.on("LEAVE_ROOM",({roomId})=>leaveRoom(socket,roomId));
+    socket.on("LEAVE_ROOM",leaveRoom);
 })
 
 server.listen(PORT,()=>{
