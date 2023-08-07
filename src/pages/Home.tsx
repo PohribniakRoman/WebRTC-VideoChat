@@ -17,7 +17,7 @@ export const Home:React.FC = ()=>{
     return<>
     {roomList.map(roomId=>{
         return <div key={roomId} >
-            <h1>{roomId}</h1>
+            <span>{roomId}</span>
             <button onClick={()=>{navigate(`room/${roomId}`)}}>Join</button>
         </div>
     })}

@@ -10,9 +10,6 @@ const io = new Server(server);
 
 
 
-
-
-
 const shareRooms = () => {
     const roomList = Array.from(io.sockets.adapter.rooms.keys()).filter(roomId=>validate(roomId));
     io.emit("SHARE_ROOMS",{
@@ -36,8 +33,6 @@ io.on("connection",(socket)=>{
         })
         shareRooms();
     }
-
-
 
 
     socket.on("JOIN_ROOM",({roomId})=>joinRoom(socket,roomId));
